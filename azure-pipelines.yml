@@ -1,0 +1,48 @@
+name: rg-pipeline
+
+trigger: none 
+
+pool: 30janagent
+
+steps: 
+- task: TerraformInstaller@1 
+  displayName: TASK1-terraform install
+  inputs:
+    terraformVersion: 'latest'
+
+- task: TerraformTask@5
+  displayName: TASK2-terraform init
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/'
+    backendServiceArm: '30jansvc'
+    backendAzureRmOverrideSubscriptionID: '1e4f7c75-847c-48f7-b236-218b82663529'
+    backendAzureRmResourceGroupName: 'Thirtyjan-rg'
+    backendAzureRmStorageAccountName: '30janstorage'
+    backendAzureRmContainerName: '30janconatiner'
+    backendAzureRmKey: 'terraform.tfstate'
+
+- task: TerraformTask@5
+  displayName: TASK3-terraform validate
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/'
+
+- task: TerraformTask@5
+  displayName: TASK4-terraform plan
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/'
+    environmentServiceNameAzureRM: '30jansvc'
+
+- task: TerraformTask@5
+  displayName: TASK5-terraform apply
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/'
+    commandOptions: '-auto-approve'
+    environmentServiceNameAzureRM: '30jansvc'
